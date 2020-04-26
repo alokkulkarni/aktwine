@@ -4,8 +4,6 @@ const chai = require('chai')
 const expect = chai.expect
 const dirtyChai = require('dirty-chai') // allows properties to be converted as sudo function calls
 const chaiAsPromised = require('chai-as-promised')
-// const sinon = require('sinon')
-// const inquirer = require('inquirer')
 const CredentialManager = require('../../lib/credential-manager')
 
 chai.use(chaiAsPromised)
@@ -34,22 +32,3 @@ describe('the credential manager', () => {
     fs.unlink(path.join(process.env.HOME, '.config', 'configstore', 'twine-test.json'), done)
   })
 })
-
-// context("with no existing credentials", () => {
-//   it("should prompt the user", async () => {
-//     sinon.stub(inquirer, "prompt").resolves({ key: "foo", secret: "bar" });
-//     const [key, secret] = await creds.getKeyAndSecret();
-//     expect(key).to.equal("foo");
-//     expect(secret).to.equal("bar");
-//     expect(inquirer.prompt.calledOnce).to.be.true();
-//     inquirer.prompt.restore();
-//   });
-// });
-
-// context("with existing credentials", () => {
-//   it("should just return them", async () => {
-//     const [key, secret] = await creds.getKeyAndSecret();
-//     expect(key).to.be.equal("foo");
-//     expect(secret).to.be.equal("bar");
-//   });
-// });
