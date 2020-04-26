@@ -39,9 +39,12 @@
     "sinon": "^9.0.2"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "commander": "^5.1.0",
     "configstore": "^5.0.1",
     "inquirer": "^7.1.0",
-    "keytar": "^5.5.0"
+    "keytar": "^5.5.0",
+    "oauth-1.0a": "^2.2.6",
+    "opn": "^6.0.0"
   }
 }
