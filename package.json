@@ -1,0 +1,26 @@
+{
+  "name": "aktwine",
+  "version": "1.0.0",
+  "description": "twitter nodejs library",
+  "bin": {
+    "twine": "./bin/twine.js"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alokkulkarni/aktwine.git"
+  },
+  "keywords": [
+    "node",
+    "cli"
+  ],
+  "author": "Alok Kulkarni",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alokkulkarni/aktwine/issues"
+  },
+  "homepage": "https://github.com/alokkulkarni/aktwine#readme"
+}
