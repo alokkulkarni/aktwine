@@ -8,19 +8,25 @@ const sinon = require('sinon')
 const inquirer = require('inquirer')
 const configure = require('../../commands/configure')
 const CredentialManager = require('../../lib/credential-manager')
+const Twitter = require('../../lib/twitter')
 
 chai.use(chaiAsPromised)
 chai.use(dirtyChai)
 
 describe('the configure module', () => {
   var creds
+  var sandbox
 
   before(() => {
     creds = new CredentialManager('twine-test')
   })
 
+  beforeEach(() => {
+    sandbox = sinon.sandbox.create()
+  })
+
   it('should add credentials if none are found', async () => {
-    sinon.stub(inquirer, 'prompt').resolves({ key: 'foo', secret: 'bar' })
+    sandbox.stub(inquirer, 'prompt').resolves({ key: 'foo', secret: 'bar' })
     await configure.consumer('twine-test')
     const [key, secret] = await creds.getKeyAndSecret('apiKey')
     expect(key).to.equal('foo')
@@ -30,13 +36,30 @@ describe('the configure module', () => {
   })
 
   it('should overwrite existing credentials', async () => {
-    sinon.stub(inquirer, 'prompt').resolves({ key: 'three', secret: 'four' })
+    sandbox.stub(inquirer, 'prompt').resolves({ key: 'three', secret: 'four' })
     await configure.consumer('twine-test')
     const [key, secret] = await creds.getKeyAndSecret('apiKey')
     expect(key).to.equal('three')
     expect(secret).to.equal('four')
     expect(inquirer.prompt.calledOnce).to.be.true()
     inquirer.prompt.restore()
+  })
+
+  it('should add an account', async () => {
+    sandbox.stub(CredentialManager.prototype, 'getKeyAndSecret')
+      .resolves(['key', 'secret'])
+    sandbox
+      .stub(Twitter.prototype, 'post')
+      .onFirstCall()
+      .resolves('oauth_token=abc&oauth_token_secret=xyz')
+      .onSecondCall()
+      .resolves('oauth_token=ghi&oauth_token_secret=mno')
+    sandbox.stub(Twitter.prototype, 'get').resolves({ screen_name: 'foo' })
+    sandbox.stub(inquirer.prototype, '').resolves()
+  })
+
+  afterEach(() => {
+    sandbox.restore()
   })
   after((done) => {
     fs.unlink(
