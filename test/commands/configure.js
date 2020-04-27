@@ -3,14 +3,13 @@ const fs = require('fs')
 const chai = require('chai')
 const expect = chai.expect
 const dirtyChai = require('dirty-chai') // allows properties to be converted as sudo function calls
-const chaiAsPromised = require('chai-as-promised')
 const sinon = require('sinon')
 const inquirer = require('inquirer')
 const configure = require('../../commands/configure')
 const CredentialManager = require('../../lib/credential-manager')
 const Twitter = require('../../lib/twitter')
+const util = require('../../lib/util')
 
-chai.use(chaiAsPromised)
 chai.use(dirtyChai)
 
 describe('the configure module', () => {
@@ -22,7 +21,7 @@ describe('the configure module', () => {
   })
 
   beforeEach(() => {
-    sandbox = sinon.sandbox.create()
+    sandbox = sinon.createSandbox()
   })
 
   it('should add credentials if none are found', async () => {
@@ -32,7 +31,6 @@ describe('the configure module', () => {
     expect(key).to.equal('foo')
     expect(secret).to.equal('bar')
     expect(inquirer.prompt.calledOnce).to.be.true()
-    inquirer.prompt.restore()
   })
 
   it('should overwrite existing credentials', async () => {
@@ -42,7 +40,6 @@ describe('the configure module', () => {
     expect(key).to.equal('three')
     expect(secret).to.equal('four')
     expect(inquirer.prompt.calledOnce).to.be.true()
-    inquirer.prompt.restore()
   })
 
   it('should add an account', async () => {
@@ -55,7 +52,18 @@ describe('the configure module', () => {
       .onSecondCall()
       .resolves('oauth_token=ghi&oauth_token_secret=mno')
     sandbox.stub(Twitter.prototype, 'get').resolves({ screen_name: 'foo' })
-    sandbox.stub(inquirer.prototype, '').resolves()
+    sandbox
+      .stub(inquirer, 'prompt')
+      .onFirstCall().resolves({ continue: '' })
+      .onSecondCall().resolves({ pin: '1234' })
+    sandbox.stub(util, 'openBrowser').returns('')
+    sandbox.spy(console, 'log')
+    await configure.account('twine-test')
+    CredentialManager.prototype.getKeyAndSecret.restore()
+    const [token, secret] = await creds.getKeyAndSecret('accountToken')
+    expect(token).to.be.equal('ghi')
+    expect(secret).to.be.equal('mno')
+    expect(console.log.calledWith('Account "foo" successfully added')).to.be.true()
   })
 
   afterEach(() => {
